@@ -1,7 +1,7 @@
 {
   "name": "sourcelens-skills",
   "version": "0.1.0",
-  "description": "Installable SourceLens skills for GitHub, GitLab, and Sentry operations.",
+  "description": "Installable SourceLens skills for GitHub, GitLab, Jira, and Sentry operations.",
   "type": "module",
   "bin": {
     "sourcelens-skills": "bin/sourcelens-skills.mjs"

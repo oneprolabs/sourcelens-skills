@@ -1,0 +1,41 @@
+{
+  "environment": [
+    {
+      "name": "JIRA_SERVER",
+      "description": "Jira instance base URL, e.g. https://jira.example.com",
+      "required": true,
+      "secret": false
+    },
+    {
+      "name": "JIRA_USERNAME",
+      "description": "Jira account email or username for the runtime account",
+      "required": true,
+      "secret": false
+    },
+    {
+      "name": "JIRA_PASSWORD",
+      "description": "Jira API token or password for the runtime account",
+      "required": true,
+      "secret": true
+    },
+    {
+      "name": "JIRA_PROJECT",
+      "description": "Default project key used by jira init (e.g. BUG)",
+      "required": false,
+      "secret": false
+    }
+  ],
+  "artifacts": {
+    "jira": {
+      "type": "executable",
+      "entrypoints": [
+        {
+          "os": "linux",
+          "arch": "amd64",
+          "path": "bin/linux-amd64/jira",
+          "sha256": "bcbfef936edb88af257a8635408441b744352b0e113e083ea9d82bc2b7f5bda0"
+        }
+      ]
+    }
+  }
+}

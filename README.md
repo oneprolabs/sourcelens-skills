@@ -2,9 +2,9 @@
 
 # SourceLens Skills
 
-### Installable CLI skills for GitHub, GitLab, and Sentry operations.
+### The SourceLens skills library — installable agent skills for CLI-driven operations.
 
-[![Agent Skills](https://img.shields.io/badge/agent_skills-3-1F6FEB?style=flat-square)](#skills)
+[![Agent Skills](https://img.shields.io/badge/agent_skills-4-1F6FEB?style=flat-square)](#skills)
 [![Node.js](https://img.shields.io/badge/node-%E2%89%A518-339933?style=flat-square&logo=nodedotjs&logoColor=white)](#install)
 [![Git](https://img.shields.io/badge/versioned_with-Git-F05032?style=flat-square&logo=git&logoColor=white)](#maintaining)
 
@@ -14,15 +14,26 @@
 
 ---
 
-SourceLens Skills is a focused collection of installable agent skills that wrap native Linux amd64 CLI binaries as SourceLens Artifacts. Each skill lets an agent drive a real toolchain directly: GitHub via `gh`, GitLab via `glab`, and Sentry via `sentry-cli`.
+SourceLens Skills is the skills library for the SourceLens agent runtime. Every directory under `skills/` is a complete, installable skill that lets a SourceLens agent drive a real toolchain through a native Linux amd64 CLI binary bundled as a SourceLens Artifact.
 
-## Why SourceLens Skills?
+The skills shipped today cover the core developer toolchains:
 
-| GitHub | GitLab | Sentry |
-| :--- | :--- | :--- |
-| Repositories, issues, PRs, and Actions. | Projects, issues, MRs, and pipelines. | Issues, events, releases, and diagnostics. |
+- **GitHub** — `gh`: repositories, issues, pull requests, releases, and Actions.
+- **GitLab** — `glab`: projects, issues, merge requests, and pipelines.
+- **Jira** — `jira`: issues, projects, boards, sprints, and releases.
+- **Sentry** — `sentry-cli`: issues, events, releases, and diagnostics.
 
-Every skill is a complete, self-contained package. Its `SKILL.md` defines the tool-calling contract, `sourcelens.json` declares the runtime environment and the bundled binary artifact, and the binary itself is committed and checksummed in the package.
+This is a starter set, not an exhaustive catalog. New skills land in the same `skills/` directory following the same packaging contract and are picked up automatically by the installer and the release pipeline.
+
+## What is a SourceLens skill?
+
+Every skill is a complete, self-contained package with a fixed contract:
+
+- `SKILL.md` — the entry point that defines the tool-calling contract: which Artifact or wrapper script to invoke, how the agent should authenticate, and when to prefer one command over another.
+- `sourcelens.json` — the artifact manifest: the runtime environment variables the skill binds, plus the bundled binary's OS/arch entrypoints with pinned SHA-256 checksums.
+- `bin/linux-amd64/<binary>` — the statically linked CLI binary, committed and checksummed inside the package.
+
+At run time, SourceLens reads the manifest, binds the declared environment, resolves the declared Artifact, and hands control to the skill exactly as its `SKILL.md` describes. Skills never carry credentials, configuration files, or anything derived from untrusted task text.
 
 ## Skills
 
@@ -30,6 +41,7 @@ Every skill is a complete, self-contained package. Its `SKILL.md` defines the to
 | --- | --- |
 | [GitHub CLI](skills/github-cli/) | manage repositories, issues, pull requests, releases, and GitHub Actions. |
 | [GitLab CLI](skills/gitlab-cli/) | manage projects, issues, merge requests, and pipelines on GitLab.com or a self-managed instance. |
+| [Jira CLI](skills/jira-cli/) | manage issues, projects, boards, sprints, and releases against a Jira Server or Jira Cloud instance. |
 | [Sentry CLI](skills/sentry-cli/) | triage issues, manage releases, and run diagnostics against a Sentry instance. |
 
 Each skill is a complete directory. Its `SKILL.md` is the entry point; the artifact manifest `sourcelens.json` and the bundled binary must remain with it.
@@ -54,7 +66,7 @@ Install to any compatible skills directory:
 npx --yes github:oneprolabs/sourcelens-skills install --target-dir /path/to/skills
 ```
 
-The installer copies all three skills. It will not overwrite an existing skill unless you explicitly add `--force`.
+The installer copies every skill under `skills/`. It will not overwrite an existing skill unless you explicitly add `--force`.
 
 ### Git checkout
 
@@ -75,6 +87,7 @@ sourcelens-skills/
 ├── skills/                  # Installable skills; one directory per skill
 │   ├── github-cli/
 │   ├── gitlab-cli/
+│   ├── jira-cli/
 │   └── sentry-cli/
 ├── bin/sourcelens-skills.mjs # Node installer used by npx
 ├── AGENTS.md                # Instructions for coding agents and maintainers
@@ -84,11 +97,13 @@ sourcelens-skills/
 
 ## Release packaging
 
-Pushing a tag (for example `v0.1.0`) triggers a GitHub Actions workflow that packages each skill into a versioned zip (`github-cli.zip`, `gitlab-cli.zip`, `sentry-cli.zip`) and attaches them to the corresponding GitHub release. The zips keep the `<skill>/SKILL.md`, `<skill>/sourcelens.json`, and `<skill>/bin/linux-amd64/<binary>` layout expected by SourceLens.
+Pushing a tag (for example `v0.1.0`) triggers a GitHub Actions workflow that packages **every skill under `skills/`** into a versioned zip (`github-cli.zip`, `gitlab-cli.zip`, `jira-cli.zip`, `sentry-cli.zip`) and attaches them to the corresponding GitHub release. The zips keep the `<skill>/SKILL.md`, `<skill>/sourcelens.json`, and `<skill>/bin/linux-amd64/<binary>` layout expected by SourceLens.
 
 ## Maintaining
 
 Git is the source of repository history. Keep skill directory names stable and version releases through commits and tags—not through directory-name suffixes.
+
+Adding a skill is just a new directory under `skills/`: `SKILL.md` + `sourcelens.json` + the bundled binary (checksummed). The installer, checksum verification, and release pipeline pick it up automatically.
 
 Before changing a skill, read [AGENTS.md](AGENTS.md). It defines the guardrails for preserving package integrity, keeping binary checksums in sync, and reviewing changes. `CLAUDE.md` points to the same instructions so Codex-style and Claude-style contributors follow one source of truth.
 

@@ -2,7 +2,7 @@
 
 ## Repository purpose
 
-SourceLens Skills is a repository of self-contained agent skills for GitHub, GitLab, and Sentry operations. Each skill bundles a native Linux amd64 CLI binary as a SourceLens Artifact.
+SourceLens Skills is a repository of self-contained agent skills for GitHub, GitLab, Jira, and Sentry operations. Each skill bundles a native Linux amd64 CLI binary as a SourceLens Artifact.
 
 ## Repository rules
 
