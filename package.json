@@ -1,0 +1,23 @@
+{
+  "name": "sourcelens-skills",
+  "version": "0.1.0",
+  "description": "Installable SourceLens skills for GitHub, GitLab, Jira, and Sentry operations.",
+  "type": "module",
+  "bin": {
+    "sourcelens-skills": "bin/sourcelens-skills.mjs"
+  },
+  "files": [
+    "bin/",
+    "skills/",
+    "AGENTS.md",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "install:codex": "node bin/sourcelens-skills.mjs install --target codex",
+    "install:claude": "node bin/sourcelens-skills.mjs install --target claude"
+  },
+  "license": "UNLICENSED"
+}
