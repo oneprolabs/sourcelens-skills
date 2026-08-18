@@ -18,10 +18,12 @@ SourceLens Skills is the skills library for the SourceLens agent runtime. Every 
 
 The skills shipped today cover the core developer toolchains:
 
-- **GitHub** — `gh`: repositories, issues, pull requests, releases, and Actions.
-- **GitLab** — `glab`: projects, issues, merge requests, and pipelines.
-- **Jira** — `jira`: issues, projects, boards, sprints, and releases.
-- **Sentry** — `sentry-cli`: issues, events, releases, and diagnostics.
+| Toolchain | CLI | What it covers |
+| --- | --- | --- |
+| GitHub | `gh` | Repositories, issues, pull requests, releases, and GitHub Actions. |
+| GitLab | `glab` | Projects, issues, merge requests, and pipelines on GitLab.com or a self-managed instance. |
+| Jira | `jira` | Atlassian Jira: issues, projects, boards, sprints, and releases on Jira Server or Jira Cloud. |
+| Sentry | `sentry-cli` | Issues, events, releases, and diagnostics against a Sentry instance. |
 
 This is a starter set, not an exhaustive catalog. New skills land in the same `skills/` directory following the same packaging contract and are picked up automatically by the installer and the release pipeline.
 
