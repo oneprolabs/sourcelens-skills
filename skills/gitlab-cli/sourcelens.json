@@ -1,0 +1,29 @@
+{
+  "environment": [
+    {
+      "name": "GITLAB_HOST",
+      "description": "GitLab self-managed instance host, e.g. https://gitlab.example.com; defaults to https://gitlab.com",
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "GITLAB_TOKEN",
+      "description": "GitLab access token for the runtime account",
+      "required": true,
+      "secret": true
+    }
+  ],
+  "artifacts": {
+    "glab": {
+      "type": "executable",
+      "entrypoints": [
+        {
+          "os": "linux",
+          "arch": "amd64",
+          "path": "bin/linux-amd64/glab",
+          "sha256": "cd18ab484e6fbd1ea710e7e2fb7489d4308b219b9b71003c2d57fb7d5a33616a"
+        }
+      ]
+    }
+  }
+}

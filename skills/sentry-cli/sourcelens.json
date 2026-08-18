@@ -1,0 +1,29 @@
+{
+  "environment": [
+    {
+      "name": "SENTRY_URL",
+      "description": "Sentry instance base URL, e.g. https://sentry.example.com; defaults to https://sentry.io",
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "SENTRY_AUTH_TOKEN",
+      "description": "Sentry authentication token for the runtime account",
+      "required": true,
+      "secret": true
+    }
+  ],
+  "artifacts": {
+    "sentry": {
+      "type": "executable",
+      "entrypoints": [
+        {
+          "os": "linux",
+          "arch": "amd64",
+          "path": "bin/linux-amd64/sentry",
+          "sha256": "50a1618336cdbb908e5559d6b941f3aa0ef5f341abeca08de40ed8c0070450b4"
+        }
+      ]
+    }
+  }
+}

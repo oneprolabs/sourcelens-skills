@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify artifact checksums
+        run: node .github/scripts/verify-checksums.mjs
+
+      - name: Package skills
+        working-directory: skills
+        run: |
+          for skill in */; do
+            skill="${skill%/}"
+            zip -r "${skill}.zip" "${skill}"
+          done
+
+      - name: List packages
+        working-directory: skills
+        run: ls -lh *.zip
+
+      - name: Attach to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: skills/*.zip
