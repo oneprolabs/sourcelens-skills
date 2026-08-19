@@ -40,6 +40,26 @@ request; do not guess. When the user asks about tasks for "this week" or a
 date range, use `issue list --created week|month|year` (or `--created
 yyyy-mm-dd`) together with `-p <PROJECT_KEY>`.
 
+`--updated`/`--created` do NOT accept a `start..end` range — only `today`,
+`week`, `month`, `year`, a single `yyyy-mm-dd` date, or a relative period like
+`-10d`. Passing a range returns HTTP 400. For an explicit bounded window, use
+`--updated-after`/`--updated-before` (or `--created-after`/`--created-before`),
+each taking one timestamp in `"yyyy-MM-dd HH:mm"` format (space-separated, no
+timezone suffix — not ISO 8601). Alternatively use `-q`/`--jql` with a
+standard JQL date comparison, e.g. `updated >= "yyyy-MM-dd HH:mm" AND updated
+<= "yyyy-MM-dd HH:mm"`.
+
+Do not pass `-p` and `-q` together — when both are set, `-p` locks the query
+to that single project and any `project`/`project in (...)` clause inside the
+JQL is silently ignored. To query one project, use `-p <PROJECT_KEY>` alone
+(with `--updated-after`/`--updated-before`); to query multiple projects in one
+call, use `-q` alone with `project in (...)` baked into the JQL — never mix
+the two.
+
+A query with no matches ("No result found for given query in project ...")
+still exits non-zero. Treat this the same as an empty result set, not a tool
+failure — do not retry it or report it as an error.
+
 Authentication uses `JIRA_USERNAME` plus `JIRA_PASSWORD` (basic auth) against
 the server in `JIRA_SERVER`, an on-premise Jira Server (`installation: Local`).
 The credential maps onto the Artifact's `JIRA_API_TOKEN` environment variable.

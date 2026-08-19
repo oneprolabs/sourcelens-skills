@@ -15,14 +15,28 @@ function sha256(buffer) {
 async function verifySkill(skillName) {
   const skillDir = path.join(skillsRoot, skillName);
   const manifestPath = path.join(skillDir, "sourcelens.json");
-  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+
+  // Not every skill bundles a native binary — some are pure Markdown
+  // orchestration skills with no sourcelens.json at all. Skip verification
+  // rather than failing the release for skills with nothing to check.
+  let manifest;
+  try {
+    manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      console.log(`Skipped ${skillName}: no sourcelens.json (no bundled artifacts).`);
+      return;
+    }
+    throw error;
+  }
 
   const entrypoints = Object.values(manifest.artifacts ?? {}).flatMap(
     (artifact) => artifact.entrypoints ?? []
   );
 
   if (entrypoints.length === 0) {
-    throw new Error(`${skillName}: no artifact entrypoints declared in sourcelens.json`);
+    console.log(`Skipped ${skillName}: sourcelens.json declares no artifact entrypoints.`);
+    return;
   }
 
   for (const entrypoint of entrypoints) {
