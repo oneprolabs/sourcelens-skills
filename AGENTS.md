@@ -2,7 +2,7 @@
 
 ## Repository purpose
 
-SourceLens Skills is a repository of self-contained agent skills for GitHub, GitLab, Jira, and Sentry operations. Each skill bundles a native Linux amd64 CLI binary as a SourceLens Artifact.
+SourceLens Skills is a repository of self-contained agent skills for the SourceLens agent runtime. Most skills bundle a native Linux amd64 CLI binary as a SourceLens Artifact (GitHub, GitLab, Jira, Sentry operations); some skills are pure Markdown orchestration logic with no bundled binary (for example, cross-tool reporting skills that call into the CLI skills above). A skill directory needs `sourcelens.json` and `bin/` only when it actually bundles an Artifact — omit both when a skill has nothing to declare.
 
 ## Repository rules
 
@@ -21,7 +21,7 @@ Before handing off a change:
 
 1. Confirm that all skill package files remain present.
 2. Check that `SKILL.md` files and `sourcelens.json` were not changed unintentionally.
-3. Verify the binary checksum matches `sourcelens.json` (`shasum -a 256 skills/<skill>/bin/linux-amd64/<binary>`).
+3. For skills that bundle a binary, verify the checksum matches `sourcelens.json` (`shasum -a 256 skills/<skill>/bin/linux-amd64/<binary>`).
 4. Test the relevant npm command or Node CLI behavior.
 5. Review the final Git diff for unrelated changes.
 
