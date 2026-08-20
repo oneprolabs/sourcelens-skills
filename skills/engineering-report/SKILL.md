@@ -56,69 +56,31 @@ SourceLens 部署上直接用，公司专属的东西必须来自外部配置，
 正文我是不是真的读过"——没有把握就重新读一次，不要凭印象或猜测继续，尤其是账号映射表，宁可
 重读一次，也不要在没读到的情况下写"当前无账号映射表"。
 
-## 第三步：抓材料之前，先读 OUTPUT_FORMAT.md
+## 第三步：抓材料之前，先读两个文件
 
-**这一步必须排在抓材料之前，不要等写最终答案时才想起来。** 用 `read_file` 打开本技能目录下的
-`OUTPUT_FORMAT.md`，读出完整正文。这个文件里是：
+**这一步必须排在抓材料之前，不要等写最终答案时才想起来。** 用 `read_file` 依次打开本技能目录
+下的这两个文件，读出完整正文：
 
-- 按人整理材料时的合并规则（尤其是账号跟映射表对不上但明显是同一人的情况要怎么处理、怎么标注）；
-- 最终交付物的格式要求——**产出方式已经从"聊天里发 Markdown 正文"改成"生成 HTML 看板文件并用
-  `save_deliverable` 交付"**，不是老印象里的 Markdown 段落。
+1. `OUTPUT_FORMAT.md`——按人整理材料时的合并规则（尤其是账号跟映射表对不上但明显是同一人的
+   情况要怎么处理、怎么标注），以及最终交付物的格式要求（**产出方式是"生成 HTML 看板文件并用
+   `save_deliverable` 交付"**，不是聊天正文里的 Markdown 段落）。
+2. `FETCH_STRATEGY.md`——第四步抓材料要用的并行委派方法和每个数据源的调用细节。
 
-提前读是因为：如果等抓完材料再读，很容易凭 Markdown 报告的固有印象直接动笔；提前知道最终要产出
-什么格式、账号要怎么合并，抓材料和整理阶段才能对着目标来，不用最后返工。这一步跳过、只做过
-`ls`/目录清单、或者凭"技能应该是这样"的印象往下走，都不算完成。
+提前读是因为：如果等抓完材料再读，很容易凭旧印象直接动笔或顺序抓取；提前知道最终要产出什么、
+怎么并行抓，后面的步骤才能对着目标来，不用返工。这一步跳过、只做过 `ls`/目录清单、或者凭"技能
+应该是这样"的印象往下走，都不算完成。
 
-## 第四步：抓材料——拿内容，不是拿编号
+## 第四步：抓材料——按 FETCH_STRATEGY.md 并行委派，不要顺序抓
+
+**GitHub、GitLab、Jira 这三个数据源没有依赖关系，必须在同一条消息里发起三个 `task` 调用并行
+委派，不要一个一个顺序抓**——具体的委派描述模板、`gh`/`glab`/`jira` 调用细节和已知坑，全部在
+第三步读过的 `FETCH_STRATEGY.md` 里，不在这里重复。子代理拿不到当前对话的上下文，委派描述必须
+按 `FETCH_STRATEGY.md` 的模板自包含（组织/project/GitLab 地址、时间区间都要写进去），不能只
+写一句"帮我抓 GitHub 数据"。
 
 标题、编号、状态只是索引，不是内容。管理者要看的是具体做了什么、解决了什么问题——这些信息在
-**commit message、PR/MR 描述、评论、Jira 描述与评论**里，必须读出来，不能只列标题和状态。
-
-### GitHub（严格限定第二步拿到的组织范围，组织外仓库不看）
-
-- 核实组织 login：`gh api /orgs/<org>`（工作区指引给的可能是显示名，不一定是实际 login，需要
-  核实一遍，不要假设两者相同）。
-- **不要用 `gh api search/issues`**（含 `/search/issues`）——这条通用 API 通道在当前环境的
-  `gh` 版本上无论参数对不对都返回 404，是这个 CLI 版本的已知坑，跟具体公司无关。改用专用子
-  命令：
-  ```text
-  gh search issues --owner <org> --include-prs \
-    --updated "<开始时间戳>..<结束时间戳>" \
-    --json repository,number,title,author,state,updatedAt,url -L 100
-  ```
-  `-L` 默认只返回 30 条，长周期要调大或分页。
-- 对每个 PR/issue，用 `gh pr view <n> --repo <repo> --json title,body,comments` /
-  `gh issue view <n> --repo <repo> --json title,body,comments` 拿描述和评论正文。
-- commit message 首行用于判断改动描述是否清楚；写得敷衍（如 "fix bug"、"update"）在评语里
-  标注"描述不详"即可，不需要读 diff 反推改了什么。
-
-### GitLab（观测范围按工作区指引；先确认实例是 http 还是 https）
-
-- 先看工作区指引/`GITLAB_HOST` 判断实例协议。**如果是纯 `http://`**：`glab api` 传相对路径
-  时固定按 `https://` 解析，会报 "HTTP response to HTTPS client"，这种情况下**每次调用都
-  必须传完整绝对 URL**，例如
-  `glab api http://<GITLAB_HOST>/api/v4/merge_requests?updated_after=...&updated_before=...`，
-  不能写成 `glab api merge_requests?...`。这个坑很容易在长对话里被忘记，每次调用前自查一遍。
-  如果实例本身是 `https://`，用相对路径正常即可，不需要这个 workaround。
-- 对每个 MR，拿描述（description）和评论；commit message 首行同样用于判断描述质量。
-
-### Jira（观测范围按工作区指引里配置的 project key）
-
-- 只看工作区指引里配置的 project（没配置则不限制，`jira project list` 拿全部 project 分别
-  查询）。
-- **`--updated`/`--created` 不支持区间语法**（`开始..结束` 会报 400）——这是这个 jira CLI 的
-  已知坑，跟具体公司无关。用 `-q`/`--jql` 写标准 JQL，日期比较写成
-  `updated >= "yyyy-MM-dd HH:mm"`（空格分隔，不带时区）。**用 `-q` 时不要同时传 `-p`**——
-  两者一起传，`-p` 会把范围锁死，JQL 里的条件反而不生效。例如（`<PROJECT_KEY>` 替换成工作区
-  指引里配置的值）：
-  ```text
-  jira issue list -q "project = <PROJECT_KEY> AND updated >= \"2026-08-17 00:00\" AND updated <= \"2026-08-17 23:59\"" \
-    --plain --no-headers --columns KEY,SUMMARY,STATUS,ASSIGNEE,UPDATED
-  ```
-- 若返回 "No result found for given query in project ..." 且退出码非 0，这是"这段时间该
-  project 没有更新"的正常结果，不是失败，不要重试、不要当错误上报。
-- 对每个 issue，用 `jira issue view <KEY> --comments 5 --plain` 拿描述和评论，尤其是窗口内
-  新增的评论——通常就是这个人实际在做的事情的第一手说明。
+commit message、PR/MR 描述、评论、Jira 描述与评论里，子代理必须读出来，不能只列标题和状态
+（`FETCH_STRATEGY.md` 里的委派模板已经写了这一点，确认没有删掉）。
 
 ## 第五步：按人整理——区分角色，标注来源，分清完成没完成
 
@@ -144,9 +106,9 @@ SourceLens 部署上直接用，公司专属的东西必须来自外部配置，
 
 - 严格按工作区指引配置的范围来（GitHub 组织、Jira project 等），不要扩大范围，也不要把某次
   运行读到的具体值当成固定值硬编码进后续推理。
-- 内容量通常较大：先分来源批量抓取、各自消化提炼要点，再进入第五步合并，不要把大段原始 API
-  输出、原始评论全文堆进最终回答。
+- 三个数据源交给子代理各自消化提炼要点、只带精简摘要回来，不要把大段原始 API 输出、原始评论
+  全文堆进最终回答。
 - 只做人物维度报告，不要额外输出团队汇总/项目整体进展这类内容。
-- 第三步的 `OUTPUT_FORMAT.md` 必须在抓材料前实际读取，不能跳过——它决定合并规则和最终交付物
-  的格式。
+- 第三步的 `OUTPUT_FORMAT.md` 和 `FETCH_STRATEGY.md` 必须在抓材料前实际读取，不能跳过——
+  一个决定合并规则和最终交付物的格式，一个决定怎么并行抓材料。
 
