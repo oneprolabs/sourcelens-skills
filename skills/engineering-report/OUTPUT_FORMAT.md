@@ -94,7 +94,7 @@ CSS 结构照抄，只需要为每个人追加一组 radio + label + 对应的 `
     font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",
       "Noto Sans SC",sans-serif; line-height:1.55; }
   .app { max-width:1320px; margin:0 auto; padding:24px 20px 48px; }
-  .filters input[type="radio"] { position:absolute; opacity:0; pointer-events:none; }
+  input[name="filter"] { position:absolute; opacity:0; pointer-events:none; }
   .filters label { display:inline-block; padding:6px 12px; margin:0 6px 6px 0;
     border:1px solid var(--border); border-radius:999px; font-size:13px;
     cursor:pointer; color:var(--ink-soft); }
